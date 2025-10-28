@@ -1,0 +1,15 @@
+{
+  "name": "mcp-scanner-test-server",
+  "version": "1.0.0",
+  "description": "测试用的 MCP 服务器（用于演示安全漏洞）",
+  "main": "test-mcp-server.js",
+  "scripts": {
+    "start": "node test-mcp-server.js",
+    "generate-icons": "node generate-icons.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "express": "^4.18.2"
+  }
+}

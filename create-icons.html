@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>图标生成器</title></head><body>
+<h2>MCP Scanner 图标生成器</h2>
+<p>点击下载按钮保存图标</p>
+<div style="margin: 20px 0;">
+  <h3>icon128.png</h3>
+  <canvas id="icon128" width="128" height="128" style="border: 1px solid #ccc;"></canvas>
+  <button onclick="downloadCanvas('icon128', 'icon128.png')">下载</button>
+</div>
+<div style="margin: 20px 0;">
+  <h3>icon48.png</h3>
+  <canvas id="icon48" width="48" height="48" style="border: 1px solid #ccc;"></canvas>
+  <button onclick="downloadCanvas('icon48', 'icon48.png')">下载</button>
+</div>
+<div style="margin: 20px 0;">
+  <h3>icon16.png</h3>
+  <canvas id="icon16" width="16" height="16" style="border: 1px solid #ccc;"></canvas>
+  <button onclick="downloadCanvas('icon16', 'icon16.png')">下载</button>
+</div>
+<script>
+function createIcon(canvasId, size) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, '#667eea');
+  gradient.addColorStop(1, '#764ba2');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = size * 0.08;
+  ctx.lineCap = 'round';
+  const centerX = size * 0.4, centerY = size * 0.4, radius = size * 0.2;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.stroke();
+  const handleStartX = centerX + radius * 0.7, handleStartY = centerY + radius * 0.7;
+  ctx.beginPath();
+  ctx.moveTo(handleStartX, handleStartY);
+  ctx.lineTo(size * 0.75, size * 0.75);
+  ctx.stroke();
+}
+function downloadCanvas(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+createIcon('icon128', 128);
+createIcon('icon48', 48);
+createIcon('icon16', 16);
+</script>
+</body></html>
