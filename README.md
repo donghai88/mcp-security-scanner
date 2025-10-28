@@ -1,48 +1,174 @@
 # MCP Security Scanner
 
-一个用于扫描本地开发环境安全风险的 Chrome 扩展。
+[English](README.md) | [中文](README_CN.md)
 
-**检测范围**：MCP 服务器、Web 开发服务器、数据库、API 服务等。
+A Chrome extension for scanning security risks in local development environments.
 
-## ⚠️ 声明
-**仅用于安全研究和测试自己的系统。**
+**Detection Scope**: MCP servers, Web development servers, databases, API services, and more.
 
-## 快速开始
+## ⚠️ Disclaimer
+**For security research and testing your own systems only.**
 
-1. 安装依赖：`npm install`
-2. 生成图标：`npm run generate-icons` （或使用 `create-icons.html`）
-3. 启动测试服务器：`npm start`
-4. 在 Chrome 加载扩展：
-   - 打开 `chrome://extensions/`
-   - 开启"开发者模式"
-   - 点击"加载已解压的扩展"，选择项目目录
-5. 点击扩展图标开始扫描
+## Quick Start
 
-详细说明见 `QUICKSTART.md`
+1. Install dependencies: `npm install`
+2. Generate icons: `npm run generate-icons` (or use `create-icons.html`)
+3. Start test server: `npm start`
+4. Load extension in Chrome:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked" and select the project directory
+5. Click the extension icon to start scanning
 
-## 功能
-- 🔍 扫描本地开发服务（MCP、Web服务器、数据库等）
-- 🔐 检测 SSE 和 HTTP 端点
-- ⚠️ 识别无认证的服务器
-- 📋 获取暴露的工具列表
-- 🎯 支持 30+ 常见开发端口
+For detailed instructions, see `QUICKSTART.md`
 
-## 使用场景
-- **安全审计**：检查开发环境中意外暴露的服务
-- **学习研究**：了解 Chrome 扩展的安全边界
-- **团队协作**：统一团队的安全扫描标准
+## Features
+- 🔍 Scan local development services (MCP, web servers, databases, etc.)
+- 🔐 Detect SSE and HTTP endpoints
+- ⚠️ Identify unauthenticated servers
+- 📋 Retrieve exposed tool lists
+- 🎯 Support 30+ common development ports
 
-## 项目状态
+## Use Cases
+- **Security Audit**: Check for accidentally exposed services in development environments
+- **Learning & Research**: Understand Chrome extension security boundaries
+- **Team Collaboration**: Standardize security scanning practices across teams
 
-**版本**: 1.0.0 | **状态**: 归档/研究完成
+## Background
 
-本项目作为安全研究和学习项目已完成。核心发现：
-- MCP 的实际安全风险比预期低（大多使用 stdio 模式）
-- Chrome 扩展可以访问 localhost，但实际威胁场景有限
-- 项目已转型为通用开发环境安全审计工具
+This project was inspired by [Koi.ai's research on Chrome extensions and MCP security](https://www.koi.ai/blog/trust-me-im-local-chrome-extensions-mcp-and-the-sandbox-escape). While attempting to replicate the findings, we discovered that the actual risk is more limited than described, as most MCP servers use stdio mode (which Chrome extensions cannot access) rather than network-based transports.
 
-如需扩展功能，欢迎 Fork 并继续开发。
+As a result, the project evolved into a general-purpose development environment security auditing tool.
+
+## Technical Details
+
+### What is MCP?
+
+MCP (Model Context Protocol) is a protocol for AI agents to interact with system tools and resources. It supports three transport modes:
+
+1. **stdio** (mainstream ~90%) - Communication via standard input/output, no network ports
+2. **Server-Sent Events (SSE)** - HTTP-based server push
+3. **Streamable HTTP** - Standard HTTP POST requests
+
+### How It Works
+
+The extension scans common development ports (3000-9000) and attempts to:
+1. Establish connections using SSE and HTTP protocols
+2. Identify MCP servers and other development services
+3. Detect authentication status
+4. Retrieve available tools and capabilities
+
+## Architecture
+
+```
+┌─────────────────┐
+│  popup.html/js  │  ← User Interface
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  background.js  │  ← Scanner Logic
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  localhost:*    │  ← Local Services
+└─────────────────┘
+```
+
+## Project Structure
+
+```
+mcp-security-scanner/
+├── manifest.json          # Chrome extension manifest
+├── popup.html/js          # Extension UI
+├── background.js          # Background scanner
+├── test-mcp-server.js     # Test MCP server (demo)
+├── generate-icons.js      # Icon generator
+└── enhanced-scanner.js    # Enhanced scanner (future)
+```
+
+## Development
+
+### Prerequisites
+- Node.js 16+
+- Chrome/Edge browser
+
+### Running Tests
+```bash
+# Start test server
+npm start
+
+# The test server will run on localhost:3001
+# It exposes intentionally vulnerable endpoints for testing
+```
+
+### Building
+```bash
+# Install dependencies
+npm install
+
+# Generate icons
+npm run generate-icons
+```
+
+## Security Considerations
+
+### Real-World Risk Assessment
+
+Based on our research, the actual security risk is lower than initially assumed:
+
+| Scenario | Transport Mode | Prevalence | Chrome Accessible | Actual Risk |
+|----------|---------------|------------|-------------------|-------------|
+| Claude Desktop, etc. | stdio | ~90% | ❌ No | None |
+| Remote MCP Services | SSE/HTTP | ~8% | ❌ No | None |
+| Local Development | SSE/HTTP | ~2% | ✅ Yes | Low |
+
+### Recommendations
+
+- ✅ **Use stdio mode** (most secure)
+- ✅ **Add authentication** if using SSE/HTTP mode
+- ✅ **Close test servers** after development
+- ✅ **Audit Chrome extensions** regularly
+- ⚠️ **Don't panic**, but stay vigilant
+
+## Related Research
+
+- [Koi.ai - Trust Me, I'm Local: Chrome Extensions, MCP, and the Sandbox Escape](https://www.koi.ai/blog/trust-me-im-local-chrome-extensions-mcp-and-the-sandbox-escape)
+- [MCP Protocol Specification](https://spec.modelcontextprotocol.io/)
+- [Chrome Extension Security Best Practices](https://developer.chrome.com/docs/extensions/develop/concepts/security)
+
+## Future Ideas
+
+If you want to extend this project:
+- Add more service fingerprints (databases, message queues, etc.)
+- Implement history tracking and comparison
+- Export scan reports (JSON/CSV/HTML)
+- Support custom scan rules and port ranges
+- Firefox extension support
+
+**Note**: This project is archived as a research study. Feel free to fork and extend it for your own use.
+
+## Project Status
+
+**Version**: 1.0.0 | **Status**: Archived / Research Complete
+
+This project is completed as a security research and learning exercise. Key findings:
+- MCP's actual security risk is lower than expected (most use stdio mode)
+- Chrome extensions can access localhost, but real-world threat scenarios are limited
+- Project evolved into a general development environment security audit tool
+
+Feel free to fork and extend if you need additional features.
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Disclaimer
+
+**For research and educational purposes only. Unauthorized access to systems you don't own is illegal.**
 
 ---
 
-**仅供研究探索。禁止破坏性使用。**
+**Note**: This tool is intended for security research and auditing your own development environment. Always obtain proper authorization before scanning any systems.
+
